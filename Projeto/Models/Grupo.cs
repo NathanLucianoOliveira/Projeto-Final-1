@@ -7,6 +7,8 @@
         public string Descricao { get; set; } = "";
         public string Imagem { get; set; } = "";
         public int QuantidadeMaxima { get; set; }
+        public Guid? SorteadoId { get; set; }
+        public Usuario? Sorteado { get; set; }
         public DateTime DataRevelacao { get; set; }
         public Guid DonoId { get; set; }
         public Usuario? Dono { get; set; }

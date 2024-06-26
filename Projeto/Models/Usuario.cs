@@ -10,6 +10,7 @@
         public string Senha { get; set; } = "";
 
         public List<Grupo> Grupos { get; set; } = [];
+        public List<Grupo> GruposVencedores { get; set; } = [];
         public List<Participante> GruposParticipante { get; set; } = [];
     }
 }

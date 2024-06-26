@@ -32,8 +32,8 @@ const Cadastro = () => {
   const handleLogin = async () => {
     const user = await userService.registrar({
       email,
-      firstName: nome,
-      lastName: sobrenome,
+      nome,
+      sobrenome,
       password,
       username: "",
     });

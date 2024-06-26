@@ -10,8 +10,10 @@ namespace Projeto.Services
         {
             return await context.Grupos
                  .Include(g => g.Participantes)
+                 .ThenInclude(p => p.Usuario)
                  .Include(g => g.Dono)
                  .Include(g => g.Convites)
+                 .Include(g => g.Sorteado)
                  .AsNoTracking()
                  .Where(g => g.DonoId == userId)
                  .FirstOrDefaultAsync(g => g.Id == id);
@@ -21,9 +23,20 @@ namespace Projeto.Services
         {
             return await context.Grupos
                  .Include(g => g.Participantes)
+                 .ThenInclude(p => p.Usuario)
                  .Include(g => g.Dono)
+                 .Include(g => g.Sorteado)
                  .AsNoTracking()
                  .Where(g => g.DonoId == userId)
+                 .ToListAsync();
+        }
+
+        public async Task<List<Grupo>> GetParticipando(Guid userId)
+        {
+            return await context.Grupos
+                 .Include(g => g.Dono)
+                 .AsNoTracking()
+                 .Where(g => g.Participantes.Any(p => p.UsuarioId == userId))
                  .ToListAsync();
         }
 
@@ -92,6 +105,29 @@ namespace Projeto.Services
             await context.SaveChangesAsync();
 
             return new("Convite aceito com sucesso.", true);
+        }
+
+        public async Task<Response> Sortear(Guid grupoId, Guid usuarioId)
+        {
+            var grupo = await GetById(grupoId, usuarioId);
+            if (grupo == null)
+                return new("Grupo não encontrado.");
+
+            if (grupo.Participantes.Count < 3)
+                return new("Grupo precisa ter no mínimo 3 participantes.");
+
+            Random.Shared.Next(0, grupo.Participantes.Count);
+
+            var sorteado = grupo.Participantes[Random.Shared.Next(0, grupo.Participantes.Count)];
+
+            grupo.SorteadoId = sorteado.UsuarioId;
+            grupo.DataRevelacao = DateTime.UtcNow;
+            context.Grupos.Update(grupo);
+
+
+            await context.SaveChangesAsync();
+
+            return new($"Sorteio realizado com sucesso. {sorteado.Usuario.Nome} foi o sorteado", true);
         }
     }
 }
